@@ -4,6 +4,7 @@
 #include <math.h>
 #include "ukf.h"
 #include "tools.h"
+//#include <fstream>
 
 using namespace std;
 
@@ -38,7 +39,23 @@ int main()
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
-  h.onMessage([&ukf,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  // used to record the NIS value
+  string out_file_name_ = "./NIS_record.txt";
+  
+  ofstream out_file_(out_file_name_.c_str(), ofstream::out);
+  if (!out_file_.is_open()) {
+    cerr << "Cannot open output file: " << out_file_name_ << endl;
+    exit(EXIT_FAILURE);
+  }
+  /*
+  fstream out_file_;
+  out_file_.open(out_file_name_, ios::out);
+  if (!out_file_) {
+    cerr << "Cannot open output file: " << out_file_name_ << endl;
+    exit(EXIT_FAILURE);
+  }*/
+
+  h.onMessage([&ukf,&tools,&estimations,&ground_truth, &out_file_](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -139,12 +156,22 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+	
+          // Output the NIS value 
+          if (meas_package.sensor_type_ == MeasurementPackage::LASER && ukf.use_laser_) {
+            cout << "NIS_laser_ = " << ukf.NIS_laser_ << endl;
+            out_file_ << ukf.NIS_laser_ << endl;
+          } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR && ukf.use_radar_) {
+            cout << "NIS_radar_ = " << ukf.NIS_radar_ << endl;
+            out_file_ << ukf.NIS_radar_ << endl;
+          }
+ 
         }
       } else {
         
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+        
       }
     }
 

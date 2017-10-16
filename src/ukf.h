@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "tools.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -67,6 +68,11 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* NIS for lidar
+  double NIS_laser_;
+
+  ///* NIS for radar
+  double NIS_radar_;
 
   /**
    * Constructor
@@ -102,6 +108,10 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+private:
+  Tools tools;
+
 };
 
 #endif /* UKF_H */
