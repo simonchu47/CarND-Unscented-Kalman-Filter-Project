@@ -159,10 +159,8 @@ int main()
 	
           // Output the NIS value 
           if (meas_package.sensor_type_ == MeasurementPackage::LASER && ukf.use_laser_) {
-            cout << "NIS_laser_ = " << ukf.NIS_laser_ << endl;
             out_file_ << ukf.NIS_laser_ << endl;
           } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR && ukf.use_radar_) {
-            cout << "NIS_radar_ = " << ukf.NIS_radar_ << endl;
             out_file_ << ukf.NIS_radar_ << endl;
           }
  
